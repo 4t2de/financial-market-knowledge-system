@@ -1,0 +1,25 @@
+psycopg2-binary
+neo4j
+groq
+python-dotenv
+pydantic
+apscheduler
+tenacity
+loguru
+fastembed
+fastapi
+uvicorn
+pyjwt
+python-dateutil
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+pandas>=2.0.0
+python-dateutil>=2.8.0
+feedparser>=6.0.0
+psycopg2-binary>=2.9.0
+selenium>=4.15.0
+aiohttp>=3.9.0
+crawl4ai>=0.8.0
+mcp
+# crawl4ai-setup

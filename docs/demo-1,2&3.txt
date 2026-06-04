@@ -1,0 +1,37 @@
+After running the API server, please visit the SwaggerUI at "http://127.0.0.1:8000/docs" to preview the API endpoints. These can be tested on SwaggerUI as well as Postman, as I'll be showing further in this demo.
+
+Moving on to SwaggerUI:
+There are 5 APIs. 4 APIs for QA and user provision, and 1 API to authorize user login credentials in order to provide them access to the LLM backend, to answer their questions. I will be highlighting the descriptions for each endpoint, and then running tests in Postman for each.
+
+Auth Login:
+    Input: Username & Password. Returns a token, to be used to authorize user sessions. No APIs will work without the bearer token. Example, running the daily summary API without auth:
+        The response returns invalid because of unauthorized access.
+    Output: Example, output is the bearer token, as highlighted before.
+    Testing it in Postman:
+        As we can see, we have received the bearer token. To authorize current access, please paste the token in the Authorization tab.
+
+Moving on,
+Daily Summary API:
+    Input: Date, but is optional. If date is not specified, the pipeline assumes current date and summarizes the content. Date to be entered in "DD-MM-YYYY" format to be processed correctly.
+    Testing in Postman:
+        As seen, output for today is obtained. Now with date parameter,
+            Again, clear output is observed. If put for a date for which there are no articles, the pipeline returns an "insufficient data to answer the query" message.
+
+Now,
+Themes API:
+    Input: User prompt in normal english language. Returns the answer as:
+        Output is observed as shown, without any issues.
+
+Classification API:
+    Input: User prompt in normal english language. Returns the answer as:
+        Output is observed as shown, without any issues.
+
+Conversational QA API:
+    Input: This API is a bit different from the existing other endpoints. There are 2 input strings, The user query and the history_id. history_id string is used to maintain of the questions user has asked before, and the answers to it in order to maintain state for that chat. For the first question, the history_id string is to be left blank. In the answer obtained for the first query, a history_id will be obtained - which is to be plugged in to future queries in the same chat, in order to maintain state for the chat.
+    Usage: As follows:
+        copy the history_id obtained in the answer, and ask a follow up question. moreover, once the history_id is plugged in for the session/chat, it is not needed to be done repeatedly.
+        As seen, the history_id is the same even in the follow up question, and the follow up retains information from the previous question as well.
+
+The 5 APIs and their intended usage has been clarified in this demo, alongwith the entire demo for the product, including Phase 1, 2 & 3.
+
+Thank you.

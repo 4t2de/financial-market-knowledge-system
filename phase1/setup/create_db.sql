@@ -1,0 +1,1 @@
+create database scraped_data;

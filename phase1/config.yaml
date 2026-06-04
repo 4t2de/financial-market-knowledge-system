@@ -1,0 +1,165 @@
+# ============================================================
+# Financial Market Knowledge Scraping Engine - Configuration
+# ============================================================
+# Sensitive credentials (passwords, API keys) should be placed
+# in the .env file, NOT here. This file controls everything else.
+# ============================================================
+
+
+# ---------------------------------------------------------------------------
+# Database Configuration
+# Values here are fallback defaults only.
+# Set the real values in your .env file:
+#   DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_SSLMODE
+# ---------------------------------------------------------------------------
+database:
+  name: scraped_data
+  user: postgres
+  password: root          # Override with DB_PASSWORD in .env
+  host: localhost
+  port: 5432
+  sslmode:                # Leave blank unless using Azure or SSL-required host
+
+
+# ---------------------------------------------------------------------------
+# Scraping Parameters
+# ---------------------------------------------------------------------------
+scraping:
+  hours_lookback: 24          # Only scrape articles published in the last N hours
+  max_articles_per_source: 3  # Maximum articles to collect per source per run
+  request_delay: 1.2          # Seconds to wait between HTTP requests (rate limiting)
+
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+logging:
+  level: INFO                        # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s [%(levelname)s] %(name)s - %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S %Z"   # %Z appends the timezone (e.g. UTC)
+  log_to_file: true
+  log_file: logs/scraper.log
+  max_bytes: 10485760                # 10 MB
+  backup_count: 5
+  log_to_database: true
+
+
+# ---------------------------------------------------------------------------
+# Content Cleaning
+# ---------------------------------------------------------------------------
+content:
+  min_content_length: 300     # Discard articles shorter than this (characters)
+  max_content_length: 6000    # Truncate articles longer than this (characters)
+
+  # Patterns stripped from scraped text (Python regex, case-insensitive).
+  # Add new patterns on their own line starting with "- ".
+  cleanup_patterns:
+    # ---- Generic site navigation / chrome ----
+    - 'Skip\s+links?'
+    - 'Skip\s+to\s+Content'
+    - 'Navigation\s+menu'
+    - 'Close\s+navigation\s+menu'
+    - 'Click\s+here\s+to\s+search'
+    - 'Share\s+on\s+social\s+media'
+    - 'share\d*\s+Share'
+    - '(facebook|twitter|whatsapp|copylink)'
+    - 'Click\s+here\s+to\s+share'
+    - 'Advertisement\s*'
+    - 'Recommended\s+Stories'
+    - 'list\s+of\s+\d+\s+items'
+    - 'list\s+\d+\s+of\s+\d+'
+    - 'end\s+of\s+list'
+    - 'Listen\s+to\s+this\s+article'
+    - '\d+\s+mins?\s+info'
+    - 'play\s+Live'
+    - 'Get\s+instant\s+alerts'
+    - 'Yes,?\s+keep\s+me\s+updated'
+    - 'notification-important'
+    - 'Be\s+the\s+first\s+to\s+know'
+    - 'Sign\s+up'
+    - 'Log\s+in'
+    - 'Create\s+an\s+account'
+    - '\[File:.*?\]'
+    - '\[Photo:.*?\]'
+    - '\[Image:.*?\]'
+    - 'caret-(left|right)'
+    - 'Show\s+more.*?sections'
+
+    # ---- Al Jazeera-specific filler ----
+    # Section labels that appear as standalone lines
+    - "(?m)^\\s*REPORTER'S\\s+NOTEBOOK\\s*$"
+    - '(?m)^\s*INTERACTIVE\s*$'
+    - '(?m)^\s*IN\s+PICTURES\s*$'
+    - '(?m)^\s*ANALYSIS\s*$'
+    - '(?m)^\s*OPINION\s*$'
+    - '(?m)^\s*EXPLAINER\s*$'
+    - '(?m)^\s*FACT\s+CHECK\s*$'
+    - '(?m)^\s*INVESTIGATION\s*$'
+    - '(?m)^\s*PODCAST\s*$'
+    - '(?m)^\s*GALLERY\s*$'
+    # Related-article / navigation bullet lines starting with "* How/Will/What/Why…"
+    - '(?m)^\*\s+(How|Will|What|Why|Where|Who|When|Can|Is|Are|Was|Were|Has|Have|Did|Should|Could|Would)[^\n]*$'
+    # Short generic bullet lines (related-article links, < 100 chars)
+    - '(?m)^\*\s{1,3}(?![\*\-]).{5,99}$'
+    # "By <Author Name>" credit lines
+    - '(?m)^By\s+[A-Z][a-zA-Z\s\-'']{2,50}$'
+    # Author profile link remnants from markdown conversion
+    - '\[\]\(https?://www\.aljazeera\.com/author/[^\)]+\)'
+    # Al Jazeera institutional footer blocks
+    - 'Al\s+Jazeera\s+Centre\s+for\s+Public\s+Liberties[^\n]*'
+    - '(?m)^Al\s+Jazeera\s+Forum\s*$'
+    # Audio/video widget boilerplate
+    - 'Your\s+browser\s+does\s+not\s+support\s+the\s+audio\s+element\.'
+    - 'audio-rewind'
+    # Newsletter subscription prompts embedded in articles
+    - 'and\s+updates\s+based\s+on\s+your\s+interests\.'
+    - 'when\s+big\s+stories\s+happen\.'
+    # Photo caption credit tags, e.g. [Photographer/Agency]
+    - '\[[A-Z][^\]\n]{5,60}/[^\]\n]{3,40}\]'
+    # Five-asterisk AJ section separators: * * * * *
+    - '(\*\s*){3,}'
+
+
+# ---------------------------------------------------------------------------
+# Enable / Disable Individual Scrapers
+# Set to true or false.
+# ---------------------------------------------------------------------------
+scrapers_enabled:
+  bbc: true
+  apnews: false
+  aljazeera: true
+  nordnet: true
+
+
+# ---------------------------------------------------------------------------
+# Source-Specific Settings
+# ---------------------------------------------------------------------------
+sources:
+
+  bbc:
+    sitemap_url: https://www.bbc.com/sitemaps/https-index-com-news.xml
+
+  apnews:
+    rss_url: "https://news.google.com/rss/search?q=site%3Aapnews.com&hl=en-US&gl=US&ceid=US%3Aen"
+    selenium_wait_time: 3   # Seconds to wait for Google News redirect
+
+  aljazeera:
+    index_urls:
+      - https://www.aljazeera.com/economy/
+      - https://www.aljazeera.com/news/
+
+  nordnet:
+    rss_urls:
+      - https://www.globenewswire.com/RssFeed/company/nordnet
+      - https://www.nordnetab.com/feed
+      - https://www.nordnetab.com/en/feed
+      - https://nordnetab.com/press/press-releases/feed/
+    index_urls:
+      - https://www.nordnetab.com/en/news
+      - https://www.nordnetab.com/en/press-releases
+      - https://nordnetab.com/press/press-releases/
+      - https://www.nordnet.se/blogg
+      - https://www.nordnet.no/blogg
+      - https://www.nordnet.dk/blog
+      - https://www.nordnet.fi/blogi
+
