@@ -46,17 +46,11 @@ python main.py --run-now
 
 ---
 
-## Step 3: Module 3 - API & Query Layer
+## Step 3: Module 3 - Previously FastAPI, now replaced with a MCP Server
 
-This step starts the FastAPI server to provide natural language querying and summary endpoints.
-
-```powershell
-# Navigate to the phase2 directory (if not already there)
-# Start the FastAPI server
-python api/main.py
-```
-
-**Verification:** The server will start at `http://localhost:8000`. You can visit `http://localhost:8000/docs` for the interactive API documentation.
+1. Run `mcp_server.py` from `\phase2and3`.
+2. Once the server is running, install Claude, or any other MCP client and set the client to use the MCP tools developed.
+3. While usage, explicitly specify to use the given connector through which the MCP server is connected.
 
 ---
 
